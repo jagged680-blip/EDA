@@ -1,0 +1,120 @@
+/* style.css */
+body { 
+    margin: 0; 
+    padding: 0; 
+    overflow: hidden; 
+    background: #1a1a1a; 
+    font-family: 'Segoe UI', Tahoma, sans-serif; 
+}
+
+/* Верхняя панель */
+.toolbar { 
+    height: 45px; 
+    background: #000080; 
+    color: white; 
+    display: flex; 
+    align-items: center; 
+    padding: 0 20px; 
+    justify-content: space-between; 
+    border-bottom: 2px solid #555; 
+}
+
+/* Индикаторы статуса */
+.status-badge { 
+    padding: 4px 12px; 
+    border-radius: 4px; 
+    font-size: 12px; 
+    font-weight: bold; 
+    border: 1px solid rgba(255,255,255,0.3); 
+}
+
+.ok { background: #27ae60; color: white; }
+.error { background: #e74c3c; color: white; animation: blink 1s infinite; }
+
+@keyframes blink { 50% { opacity: 0.5; } }
+
+/* Панели Norton Commander */
+.container { 
+    display: flex; 
+    height: calc(100vh - 45px); 
+    width: 100vw; 
+    background: #444; 
+    gap: 2px; 
+}
+
+.panel { 
+    flex: 1; 
+    background: #000; 
+    position: relative; 
+    cursor: crosshair; 
+    overflow: hidden; 
+}
+
+.label { 
+    position: absolute; 
+    top: 5px; 
+    right: 10px; 
+    color: #00ff00; 
+    opacity: 0.5; 
+    font-size: 11px; 
+    pointer-events: none; 
+    z-index: 10; 
+}
+
+/* Контекстное меню */
+#menu {
+    display: none; 
+    position: fixed; 
+    width: 180px; 
+    background: #f0f0f0;
+    border: 1px solid #333; 
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.7); 
+    z-index: 9999;
+}
+
+#menu .header { 
+    background: #ccc; 
+    padding: 5px 10px; 
+    font-size: 10px; 
+    color: #555; 
+    font-weight: bold; 
+}
+
+#menu button {
+    width: 100%; 
+    padding: 10px 15px; 
+    text-align: left; 
+    border: none;
+    background: none; 
+    cursor: pointer; 
+    border-bottom: 1px solid #ddd; 
+    font-size: 13px;
+}
+
+#menu button:hover { 
+    background: #000080; 
+    color: white; 
+}
+
+/* Оверлей ошибки */
+#error-overlay {
+    display: none; 
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    background: #e74c3c; 
+    color: white; 
+    padding: 20px; 
+    border: 4px solid white; 
+    z-index: 10000;
+    text-align: center; 
+    box-shadow: 0 0 100px rgba(0,0,0,1);
+}
+
+/* Подсветка выбранного элемента */
+.selected-info {
+    font-size: 12px;
+    color: #00ff00;
+    margin-left: 20px;
+}

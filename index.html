@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>EDA Norton Editor v1.2</title>
+    
+    <!-- Подключение внешнего стиля -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Подключение локальной библиотеки Konva -->
+    <script src="konva.min.js"></script>
+</head>
+<body>
+
+<div id="error-overlay">
+    <h2>ОШИБКА КРИТИЧЕСКОГО МОДУЛЯ</h2>
+    <p>Файл <b>konva.min.js</b> не найден в папке с программой!</p>
+</div>
+
+<div class="toolbar">
+    <div><b>EDA NORTON</b> | ПКМ: вставка | Клик: выбор | <b>DEL</b>: удалить</div>
+    <div id="libStatus" class="status-badge">ПРОВЕРКА...</div>
+</div>
+
+<div class="container">
+    <div id="schematic" class="panel" oncontextmenu="return false;">
+        <div class="label">[ SCHEMATIC EDITOR ]</div>
+    </div>
+    <div id="pcb" class="panel" oncontextmenu="return false;">
+        <div class="label">[ PCB LAYOUT ]</div>
+    </div>
+</div>
+
+<div id="menu">
+    <div class="header">INSERT COMPONENT:</div>
+    <button onclick="addComp('R', '#3498db', 40, 16, 'Resistor')">Резистор (R)</button>
+    <button onclick="addComp('C', '#e74c3c', 20, 30, 'Capacitor')">Конденсатор (C)</button>
+    <button onclick="addComp('L', '#f1c40f', 40, 20, 'Inductor')">Катушка (L)</button>
+    <button onclick="addComp('VT', '#9b59b6', 30, 30, 'Transistor')">Транзистор (VT)</button>
+</div>
+
+<!-- ПОДКЛЮЧЕНИЕ ВНЕШНЕЙ ЛОГИКИ -->
+<script src="script.js"></script>
+
+</body>
+</html>
