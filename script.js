@@ -7,7 +7,7 @@ let lastPointerPos = { x: 50, y: 50 };
 // Система соединений
 let wires = []; 
 let connectionSource = null; 
-let tempLine = null; // Временная линия ("резиновая нить")
+let tempLine = null;
 
 // Раздельные счетчики типов
 let counters = {
@@ -52,7 +52,7 @@ window.onload = function() {
     stageSch.add(layerSch);
     stagePcb.add(layerPcb);
 
-    // Обработка движения мыши для "резиновой нити"
+    // "Резиновая нить" за курсором
     stageSch.on('mousemove', () => {
         if (tempLine && connectionSource) {
             const pos = stageSch.getPointerPosition();
@@ -60,13 +60,12 @@ window.onload = function() {
             const transform = layerSch.getAbsoluteTransform().copy().invert();
             const p1 = transform.point(sPos);
             const p2 = transform.point(pos);
-
             tempLine.points([p1.x, p1.y, p2.x, p2.y]);
             layerSch.batchDraw();
         }
     });
 
-    // Отмена создания провода по клику на пустое место (ПКМ или ЛКМ)
+    // Отмена соединения при клике на пустом месте
     stageSch.on('mousedown', (e) => {
         if (e.target === stageSch && connectionSource) {
             cancelConnection();
@@ -101,7 +100,7 @@ function connectPins(sourcePin, targetPin) {
         stroke: '#00ff00',
         strokeWidth: 2,
         lineCap: 'round',
-        points: [0, 0, 0, 0]
+        points: [0,0,0,0]
     });
 
     const wireObj = {
@@ -119,17 +118,17 @@ function connectPins(sourcePin, targetPin) {
 
 function updateWires() {
     wires.forEach(w => {
-        const s = w.source.getAbsolutePosition();
-        const t = w.target.getAbsolutePosition();
+        const sPos = w.source.getAbsolutePosition();
+        const tPos = w.target.getAbsolutePosition();
         const transform = layerSch.getAbsoluteTransform().copy().invert();
-        const p1 = transform.point(s);
-        const p2 = transform.point(t);
+        const p1 = transform.point(sPos);
+        const p2 = transform.point(tPos);
         w.line.points([p1.x, p1.y, p2.x, p2.y]);
     });
     layerSch.batchDraw();
 }
 
-// 3. ВЫДЕЛЕНИЕ И УДАЛЕНИЕ
+// 3. ВЫДЕЛЕНИЕ, ПЕРЕНУМЕРАЦИЯ И УДАЛЕНИЕ
 function selectComponent(id) {
     selectedId = id;
     stageSch.find('.comp-body').forEach(n => n.stroke('white'));
@@ -167,14 +166,21 @@ function reindexComponents() {
 
 window.addEventListener('keydown', (e) => {
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        // Удаление связанных проводов
         wires = wires.filter(w => {
-            if (w.source.getAncestor().id() === selectedId || w.target.getAncestor().id() === selectedId) {
+            const sParent = w.source.getParent();
+            const tParent = w.target.getParent();
+            if ((sParent && sParent.id() === selectedId) || (tParent && tParent.id() === selectedId)) {
                 w.line.destroy(); return false;
             }
             return true;
         });
-        stageSch.findOne('#' + selectedId)?.destroy();
-        stagePcb.findOne('#' + selectedId)?.destroy();
+
+        const schObj = stageSch.findOne('#' + selectedId);
+        if (schObj) schObj.destroy();
+        const pcbObj = stagePcb.findOne('#' + selectedId);
+        if (pcbObj) pcbObj.destroy();
+
         selectedId = null;
         reindexComponents();
         updateWires();
@@ -192,21 +198,12 @@ function addComp(prefix, color, w, h, typeName) {
         p.on('mousedown', (e) => {
             e.cancelBubble = true;
             if (!connectionSource) {
-                // Начало соединения
                 connectionSource = p;
                 p.fill('#00ffff');
-                tempLine = new Konva.Line({
-                    stroke: '#00ff00',
-                    strokeWidth: 1.5,
-                    dash: [5, 5], // Пунктир для временной линии
-                    points: [0, 0, 0, 0]
-                });
+                tempLine = new Konva.Line({ stroke: '#00ff00', strokeWidth: 1.5, dash: [4, 4], points: [0,0,0,0] });
                 layerSch.add(tempLine);
             } else {
-                // Конец соединения
-                if (connectionSource !== p) {
-                    connectPins(connectionSource, p);
-                }
+                if (connectionSource !== p) connectPins(connectionSource, p);
                 cancelConnection();
             }
             layerSch.draw();
@@ -230,11 +227,11 @@ function addComp(prefix, color, w, h, typeName) {
             groupSch.add(new Konva.Arc({ name: 'comp-body', x: 7 + (i * 12), y: 10, innerRadius: 6, outerRadius: 6, angle: 180, rotation: 180, stroke: 'white', strokeWidth: 1.5 }));
         }
         groupSch.add(new Konva.Line({ points: [-10, 10, 1, 10], stroke: 'white' }));
-        groupSch.add(new Konva.Line({ points: [37, 10, 47, 10], stroke: 'white' }));
+        groupSch.add(new Konva.Line({ points: [33, 10, 47, 10], stroke: 'white' }));
         groupSch.add(createPin(-10, 10)); groupSch.add(createPin(47, 10));
     } else if (typeName === 'Transistor') {
         groupSch.add(new Konva.Circle({ name: 'comp-body', x: 20, y: 20, radius: 20, stroke: 'white', strokeWidth: 1.5 }));
-        groupSch.add(new Konva.Line({ points: [10, 10, 10, 30], stroke: 'white', strokeWidth: 2 }));
+        groupSch.add(new Konva.Line({ points: [10, 10, 10, 30], stroke: 'white', strokeWidth: 2.5 }));
         groupSch.add(new Konva.Line({ points: [-5, 20, 10, 20], stroke: 'white' }));
         groupSch.add(new Konva.Line({ points: [10, 15, 30, 5], stroke: 'white' }));
         groupSch.add(new Konva.Line({ points: [10, 25, 30, 35], stroke: 'white' }));
