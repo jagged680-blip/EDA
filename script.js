@@ -52,7 +52,7 @@ window.onload = function() {
     stageSch.add(layerSch);
     stagePcb.add(layerPcb);
 
-    // "Резиновая нить" за курсором
+    // "Резиновая нить"
     stageSch.on('mousemove', () => {
         if (tempLine && connectionSource) {
             const pos = stageSch.getPointerPosition();
@@ -65,7 +65,6 @@ window.onload = function() {
         }
     });
 
-    // Отмена соединения при клике на пустом месте
     stageSch.on('mousedown', (e) => {
         if (e.target === stageSch && connectionSource) {
             cancelConnection();
@@ -166,14 +165,17 @@ function reindexComponents() {
 
 window.addEventListener('keydown', (e) => {
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
-        // Удаление связанных проводов
-        wires = wires.filter(w => {
-            const sParent = w.source.getParent();
-            const tParent = w.target.getParent();
-            if ((sParent && sParent.id() === selectedId) || (tParent && tParent.id() === selectedId)) {
-                w.line.destroy(); return false;
-            }
-            return true;
+        // Надежное удаление связанных проводов
+        const wiresToDelete = wires.filter(w => {
+            const sComp = w.source.findAncestor('.comp-group');
+            const tComp = w.target.findAncestor('.comp-group');
+            return (sComp && sComp.id() === selectedId) || (tComp && tComp.id() === selectedId);
+        });
+
+        wiresToDelete.forEach(w => {
+            w.line.destroy();
+            const idx = wires.indexOf(w);
+            if (idx > -1) wires.splice(idx, 1);
         });
 
         const schObj = stageSch.findOne('#' + selectedId);
@@ -191,16 +193,27 @@ window.addEventListener('keydown', (e) => {
 function addComp(prefix, color, w, h, typeName) {
     counters[typeName]++;
     const id = prefix + counters[typeName];
-    const groupSch = new Konva.Group({ x: lastPointerPos.x, y: lastPointerPos.y, draggable: true, id: id });
+    const groupSch = new Konva.Group({ 
+        x: lastPointerPos.x, 
+        y: lastPointerPos.y, 
+        draggable: true, 
+        id: id,
+        name: 'comp-group'
+    });
 
     const createPin = (px, py) => {
-        const p = new Konva.Circle({ x: px, y: py, radius: 4, fill: 'yellow', name: 'pin', stroke: '#555', strokeWidth: 1 });
+        const p = new Konva.Circle({ 
+            x: px, y: py, radius: 4, fill: 'yellow', name: 'pin', 
+            stroke: '#555', strokeWidth: 1, hitStrokeWidth: 15 
+        });
+        p.on('mouseenter', () => { p.radius(6); stageSch.container().style.cursor = 'pointer'; layerSch.draw(); });
+        p.on('mouseleave', () => { p.radius(4); stageSch.container().style.cursor = 'crosshair'; layerSch.draw(); });
         p.on('mousedown', (e) => {
             e.cancelBubble = true;
             if (!connectionSource) {
                 connectionSource = p;
                 p.fill('#00ffff');
-                tempLine = new Konva.Line({ stroke: '#00ff00', strokeWidth: 1.5, dash: [4, 4], points: [0,0,0,0] });
+                tempLine = new Konva.Line({ stroke: '#00ff00', strokeWidth: 1.5, dash: [5, 5], points: [0,0,0,0] });
                 layerSch.add(tempLine);
             } else {
                 if (connectionSource !== p) connectPins(connectionSource, p);
@@ -217,10 +230,10 @@ function addComp(prefix, color, w, h, typeName) {
         groupSch.add(new Konva.Line({ points: [40, 8, 55, 8], stroke: 'white' }));
         groupSch.add(createPin(-15, 8)); groupSch.add(createPin(55, 8));
     } else if (typeName === 'Capacitor') {
-        groupSch.add(new Konva.Line({ name: 'comp-body', points: [15, 0, 15, 20], stroke: 'white', strokeWidth: 2.5 }));
-        groupSch.add(new Konva.Line({ name: 'comp-body', points: [25, 0, 25, 20], stroke: 'white', strokeWidth: 2.5 }));
-        groupSch.add(new Konva.Line({ points: [0, 10, 15, 10], stroke: 'white' }));
-        groupSch.add(new Konva.Line({ points: [25, 10, 40, 10], stroke: 'white' }));
+        groupSch.add(new Konva.Line({ name: 'comp-body', points: [17, 0, 17, 20], stroke: 'white', strokeWidth: 2.5 }));
+        groupSch.add(new Konva.Line({ name: 'comp-body', points: [23, 0, 23, 20], stroke: 'white', strokeWidth: 2.5 }));
+        groupSch.add(new Konva.Line({ points: [0, 10, 17, 10], stroke: 'white' }));
+        groupSch.add(new Konva.Line({ points: [23, 10, 40, 10], stroke: 'white' }));
         groupSch.add(createPin(0, 10)); groupSch.add(createPin(40, 10));
     } else if (typeName === 'Inductor') {
         for(let i=0; i<3; i++) {
