@@ -1,4 +1,4 @@
-/* style.css */
+﻿/* style.css */
 body { 
     margin: 0; 
     padding: 0; 
@@ -117,4 +117,9 @@ body {
     font-size: 12px;
     color: #00ff00;
     margin-left: 20px;
+}
+
+/* Цвет фона панелей теперь задается здесь для гармонии с сеткой */
+.panel {
+    background-color: #121212; /* Глубокий черный */
 }
