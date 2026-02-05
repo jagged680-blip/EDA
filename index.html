@@ -2,26 +2,46 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>EDA Norton Editor v1.2</title>
+    <title>EDA Norton Editor v1.3 - Local Mode</title>
     
     <!-- Подключение внешнего стиля -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- Подключение локальной библиотеки Konva -->
+    <!-- ЗАГРУЗКА БИБЛИОТЕКИ ЛОКАЛЬНО -->
+    <!-- Убедитесь, что файл konva.min.js лежит в той же папке! -->
     <script src="konva.min.js"></script>
 </head>
 <body>
 
+<!-- Оверлей на случай если файл konva.min.js не найден -->
 <div id="error-overlay">
-    <h2>ОШИБКА КРИТИЧЕСКОГО МОДУЛЯ</h2>
+    <h2>ОШИБКА МОДУЛЯ KONVA</h2>
     <p>Файл <b>konva.min.js</b> не найден в папке с программой!</p>
+    <p>Положите библиотеку в папку проекта и обновите страницу (Ctrl+F5).</p>
 </div>
 
+<!-- Верхняя панель управления -->
 <div class="toolbar">
-    <div><b>EDA NORTON</b> | ПКМ: вставка | Клик: выбор | <b>DEL</b>: удалить</div>
-    <div id="libStatus" class="status-badge">ПРОВЕРКА...</div>
+    <div class="info">
+        <b>EDA NORTON</b> | ПКМ: вставка | <b>R</b>: поворот | <b>DEL</b>: удалить
+    </div>
+    
+    <div class="actions" style="display: flex; gap: 10px;">
+        <button onclick="saveProject()" style="background:#27ae60; color:white; border:none; padding:4px 12px; cursor:pointer; font-weight:bold; border-radius:2px;">
+            СОХРАНИТЬ JSON
+        </button>
+        
+        <button onclick="document.getElementById('fileInput').click()" style="background:#2980b9; color:white; border:none; padding:4px 12px; cursor:pointer; font-weight:bold; border-radius:2px;">
+            ОТКРЫТЬ JSON
+        </button>
+        
+        <input type="file" id="fileInput" style="display:none" onchange="loadProject(event)" accept=".json">
+    </div>
+
+    <div id="libStatus" class="status-badge">ПРОВЕРКА МОДУЛЕЙ...</div>
 </div>
 
+<!-- Панели SCH и PCB -->
 <div class="container">
     <div id="schematic" class="panel" oncontextmenu="return false;">
         <div class="label">[ SCHEMATIC EDITOR ]</div>
@@ -31,6 +51,7 @@
     </div>
 </div>
 
+<!-- Контекстное меню -->
 <div id="menu">
     <div class="header">INSERT COMPONENT:</div>
     <button onclick="addComp('R', '#3498db', 40, 16, 'Resistor')">Резистор (R)</button>
@@ -39,7 +60,7 @@
     <button onclick="addComp('VT', '#9b59b6', 30, 30, 'Transistor')">Транзистор (VT)</button>
 </div>
 
-<!-- ПОДКЛЮЧЕНИЕ ВНЕШНЕЙ ЛОГИКИ -->
+<!-- Подключение логики -->
 <script src="script.js"></script>
 
 </body>
